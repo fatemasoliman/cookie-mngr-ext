@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const statusDiv = document.getElementById('status');
   const loginButton = document.getElementById('login');
   const logoutButton = document.getElementById('logout');
+  const copyCookieButton = document.getElementById('copyCookie');
   const sendTokenButton = document.getElementById('sendToken');
 
   function updateStatus() {
@@ -10,11 +11,13 @@ document.addEventListener('DOMContentLoaded', function() {
         statusDiv.textContent = "Authenticated";
         loginButton.style.display = 'none';
         logoutButton.style.display = 'block';
+        copyCookieButton.style.display = 'block';
         sendTokenButton.style.display = 'block';
       } else {
         statusDiv.textContent = "Not authenticated";
         loginButton.style.display = 'block';
         logoutButton.style.display = 'none';
+        copyCookieButton.style.display = 'none';
         sendTokenButton.style.display = 'none';
       }
     });
@@ -30,6 +33,20 @@ document.addEventListener('DOMContentLoaded', function() {
   logoutButton.addEventListener('click', function() {
     chrome.runtime.sendMessage({action: "logout"}, function(response) {
       updateStatus();
+    });
+  });
+
+  copyCookieButton.addEventListener('click', function() {
+    chrome.runtime.sendMessage({action: "getFullCookie"}, function(response) {
+      if (response.fullCookie) {
+        navigator.clipboard.writeText(response.fullCookie).then(function() {
+          statusDiv.textContent = "Cookie copied to clipboard";
+        }, function(err) {
+          statusDiv.textContent = "Failed to copy cookie: " + err;
+        });
+      } else {
+        statusDiv.textContent = "No cookie available to copy";
+      }
     });
   });
 

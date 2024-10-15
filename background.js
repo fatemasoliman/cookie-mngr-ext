@@ -124,7 +124,38 @@ function sendTokenToEndpoint() {
   });
 }
 
-// Modify the existing message listener in background.js to handle the new "sendToken" action
+// Modify this function to get all cookies
+function getFullCookie(callback) {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs[0]) {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        function: () => {
+          return document.cookie;
+        },
+      }, (injectionResults) => {
+        if (chrome.runtime.lastError) {
+          console.error('Script injection error:', chrome.runtime.lastError.message);
+          callback(null);
+          return;
+        }
+        
+        if (!injectionResults || injectionResults.length === 0) {
+          console.error('No injection results');
+          callback(null);
+          return;
+        }
+        
+        const fullCookie = injectionResults[0].result;
+        callback(fullCookie);
+      });
+    } else {
+      callback(null);
+    }
+  });
+}
+
+// Modify the existing message listener to handle the new "getFullCookie" action
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   console.log('Received message:', request.action);
   if (request.action === "getAuthStatus") {
@@ -143,6 +174,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       .then(() => sendResponse({success: true}))
       .catch(error => sendResponse({success: false, error: error}));
     return true; // Indicates that we will send a response asynchronously
+  } else if (request.action === "getToken") {
+    getAuthToken(function(token) {
+      sendResponse({token: token});
+    });
+    return true;
+  } else if (request.action === "getFullCookie") {
+    getFullCookie(function(fullCookie) {
+      sendResponse({fullCookie: fullCookie});
+    });
+    return true;
   }
 });
 

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Auth Token Manager",
+  "name": "Otto Auth Manager",
   "version": "1.0",
   "description": "Manages authentication tokens securely",
   "permissions": [
